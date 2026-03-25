@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CambridgeSolver</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="titlebar">
+        <div class="traffic-lights">
+          <button class="tl-btn tl-close" id="tl-close" title="Close">
+            <svg viewBox="0 0 12 12">
+              <path d="M3.5 3.5l5 5M8.5 3.5l-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+          </button>
+          <button class="tl-btn tl-minimize" id="tl-minimize" title="Minimize">
+            <svg viewBox="0 0 12 12">
+              <line x1="2.5" y1="6" x2="9.5" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+          </button>
+          <button class="tl-btn tl-maximize" id="tl-maximize" title="Maximize">
+            <svg viewBox="0 0 12 12">
+              <polyline points="3.5,7.5 3.5,3.5 7.5,3.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"
+                stroke-linejoin="round" fill="none" />
+              <polyline points="8.5,4.5 8.5,8.5 4.5,8.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"
+                stroke-linejoin="round" fill="none" />
+            </svg>
+          </button>
+        </div>
+        <span class="titlebar-text">CambridgeSolver</span>
+      </div>
+
+      <div id="sidebar-nav">
+        <button id="nav-home" class="sidebar-item active">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span class="nav-label">Home</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section-header">
+        <span>Your Subjects</span>
+      </div>
+
+      <div id="subject-list"></div>
+      <button id="add-subject-btn" class="btn-add">+ Add Subject</button>
+    </aside>
+
+    <!-- Main content -->
+    <main id="main">
+      <!-- Browser panel -->
+      <div id="browser-panel">
+        <div id="breadcrumb"></div>
+        <div id="folder-list"></div>
+        <!-- Loading indicator for indexing -->
+        <div id="index-loading" class="hidden">
+          <div id="index-progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="index-progress-fill"></div>
+            </div>
+            <span id="index-progress-text">Loading papers...</span>
+          </div>
+          <div id="index-error-container" class="hidden">
+            <div class="error-icon">
+              <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                </path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <span id="index-error-text" class="error-text"></span>
+          </div>
+        </div>
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+              <polyline points="13 2 13 9 20 9"></polyline>
+            </svg>
+          </div>
+          <p>No papers found in this folder</p>
+        </div>
+
+        <!-- Home View -->
+        <div id="home-view">
+          <div class="home-header">
+            <h2>Welcome Back</h2>
+            <p>Pick up right where you left off, or select a subject to start a new past paper.</p>
+          </div>
+
+          <div id="recent-sessions-container" class="hidden">
+            <h3 class="recent-title">Recent Sessions</h3>
+            <div id="recent-sessions-list" class="recent-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF Viewer -->
+      <div id="viewer-panel" class="hidden">
+        <div id="viewer-toolbar">
+          <button id="viewer-close" class="btn-icon" title="Close viewer">✕</button>
+          <span id="viewer-title"></span>
+          <div class="viewer-controls">
+            <button id="zoom-out" class="btn-icon" title="Zoom out">−</button>
+            <span id="zoom-level">100%</span>
+            <button id="zoom-in" class="btn-icon" title="Zoom in">+</button>
+          </div>
+        </div>
+        <div id="viewer-content">
+          <div id="download-progress" class="hidden">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span id="progress-text">Downloading...</span>
+          </div>
+          <iframe id="pdf-frame" style="display:none;"></iframe>
+        </div>
+      </div>
+
+      <!-- Solver Mode -->
+      <div id="solver-panel" class="hidden">
+        <div id="solver-toolbar">
+          <button class="solver-close" id="solver-close-btn" title="Close Solver">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
+            </svg>
+            <span>Back</span>
+          </button>
+          <div class="solver-toolbar-divider"></div>
+          <div class="solver-tools">
+            <button class="solver-tool active" data-tool="pen" title="Pen">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+              </svg>
+            </button>
+            <button class="solver-tool" data-tool="highlighter" title="Highlighter">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </button>
+            <button class="solver-tool" data-tool="eraser" title="Eraser">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 20H7L3 16l9-9 8 8-4 4z" />
+                <path d="M6.5 13.5l5 5" />
+              </svg>
+            </button>
+          </div>
+          <div class="solver-toolbar-divider"></div>
+          <div class="solver-colors">
+            <button class="solver-color active" data-color="#000000" style="background:#000000" title="Black"></button>
+            <button class="solver-color" data-color="#007aff" style="background:#007aff" title="Blue"></button>
+            <button class="solver-color" data-color="#ff3b30" style="background:#ff3b30" title="Red"></button>
+            <button class="solver-color" data-color="#34c759" style="background:#34c759" title="Green"></button>
+          </div>
+          <div class="solver-toolbar-divider"></div>
+          <div class="solver-sizes">
+            <button class="solver-size" data-size="1.5" title="Fine">·</button>
+            <button class="solver-size active" data-size="2.5" title="Medium">•</button>
+            <button class="solver-size" data-size="5" title="Thick">⬤</button>
+          </div>
+          <div class="solver-toolbar-divider"></div>
+          <button class="solver-action" id="solver-undo" title="Undo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+            </svg>
+          </button>
+          <button class="solver-action" id="solver-redo" title="Redo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+          </button>
+          <div class="solver-toolbar-spacer"></div>
+          <span id="solver-page-info" class="solver-page-info"></span>
+          <div class="solver-toolbar-divider"></div>
+          <div class="solver-zoom">
+            <button class="solver-action" id="solver-zoom-out" title="Zoom out">−</button>
+            <span id="solver-zoom-level" class="solver-zoom-label">100%</span>
+            <button class="solver-action" id="solver-zoom-in" title="Zoom in">+</button>
+          </div>
+        </div>
+        <div id="solver-content">
+          <div id="solver-left">
+            <div id="solver-pages"></div>
+          </div>
+          <div id="solver-divider"></div>
+          <div id="solver-right">
+            <div id="solver-ref-header">
+              <div id="solver-ref-tabs"></div>
+              <div class="solver-ref-zoom">
+                <button class="solver-ref-zoom-btn" id="ref-zoom-out" title="Zoom out">−</button>
+                <span id="ref-zoom-level" class="solver-zoom-label">100%</span>
+                <button class="solver-ref-zoom-btn" id="ref-zoom-in" title="Zoom in">+</button>
+              </div>
+            </div>
+            <div id="solver-ref-pages"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Subject Modal -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal">
+      <div class="modal-header">
+        <h2>Add Subject</h2>
+        <button id="modal-close" class="btn-icon">✕</button>
+      </div>
+      <input type="text" id="subject-search" placeholder="Search subjects..." autocomplete="off">
+      <div id="subject-catalog"></div>
+    </div>
+  </div>
+
+  <script src="../node_modules/pdfjs-dist/build/pdf.js"></script>
+  <script src="subjects.js"></script>
+  <script src="browser.js"></script>
+  <script src="ink-engine.js"></script>
+  <script src="solver.js"></script>
+  <script src="viewer.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
